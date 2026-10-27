@@ -68,3 +68,5 @@ Cualquier código o componente generado debe respetar estrictamente estos requis
 - Cualquier cambio de librería o flujo de datos debe consultar primero los archivos ADR correspondientes (`ADR-001` a `ADR-007`).
 - En las respuestas y código generado, prioriza la simplicidad, el rendimiento en dispositivos móviles físicos y el manejo defensivo de errores offline.
 - Siempre documenta cualquier decisión que afecte la arquitectura o el flujo de datos en los ADR correspondientes.
+
+Al finalizar cualquier instruccion modifica en MEMORY.md el apartado de Ya implementado y Falta por hacer con maximo 50 lineas
