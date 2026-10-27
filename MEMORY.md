@@ -103,12 +103,14 @@ Ejemplos:
 - NetworkStatusBar (R9) solo montada en /busqueda.
 - Store Zustand useLecturaStore (R5) y borrador.service.ts (R8: guardar, obtener, limpiar, restaurar, autoguardado).
 - Pantalla /registro/paso1-estado (R5, R8): estados, motivo/daño obligatorios, borrador Continuar/Descartar.
+- Utilidades: calculoConsumo.ts (R6), utils/fileSystemStorage.ts (R7), lecturas.service.ts (R4, guarda y limpia borrador).
+- Pantallas paso2-lectura (R5, R6) y confirmacion (R4, R7, R8: cámara, guardar, reset, alerta).
 
 ---
 
 ## Falta por hacer
 
-- Pantallas paso2-lectura (R6), paso3 foto (R7; obligatoria si Dañado o anómalo) y confirmacion.
+- Probar flujo completo en dispositivo (cámara, permisos, modo avión).
 - Montar NetworkStatusBar en todas las pantallas (R9) y sincronización automática sin duplicados.
 - limpiarBorrador + resetFormulario al finalizar el registro.
 - Edición PENDIENTE y control de duplicados por mes (R10).
