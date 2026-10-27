@@ -65,6 +65,11 @@ export default function BusquedaScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <Text style={styles.title}>Consultar medidor</Text>
+          <Pressable onPress={() => router.push('/historial' as never)} style={{ marginBottom: 16 }}>
+            <Text style={{ fontFamily: 'Roboto_500Medium', color: C.accent, fontSize: 15 }}>
+              Ver historial de lecturas
+            </Text>
+          </Pressable>
 
           <form.Field
             name="codigo"

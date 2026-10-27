@@ -97,6 +97,9 @@ Ejemplos:
 - Auth: src/features/auth/auth.service.ts (sesión en AsyncStorage).
 - Login R1 en src/app/index.tsx (TanStack Form, redirige a /busqueda).
 - Deps agregadas: expo-sqlite, @react-native-async-storage/async-storage.
+- Sync (R9): sync.service.ts (cerrojo, sin duplicados) y useSyncListener montado en _layout.
+- R10: validarLecturaExistente en lecturas.service (bloquea al guardar).
+- Pantalla /historial (R10): chips PENDIENTE/ENVIADO, edición solo PENDIENTE, enlace desde /busqueda.
 - _layout.tsx: fuentes Roboto, QueryClientProvider (staleTime 24h), init SQLite, Stack.
 - Medidores (R2, R3): medidores.types/validator/service.ts y hook useMedidorQuery.
 - Pantalla /busqueda (TanStack Form + useQuery, tarjeta con 7 datos).
@@ -110,7 +113,8 @@ Ejemplos:
 
 ## Falta por hacer
 
-- Probar flujo completo en dispositivo (cámara, permisos, modo avión).
+- Probar flujo completo en dispositivo (cámara, permisos, modo avión, sync al reconectar).
+- Mostrar aviso R10 en UI antes del paso 1 (hoy bloquea al guardar).
 - Montar NetworkStatusBar en todas las pantallas (R9) y sincronización automática sin duplicados.
 - limpiarBorrador + resetFormulario al finalizar el registro.
 - Edición PENDIENTE y control de duplicados por mes (R10).

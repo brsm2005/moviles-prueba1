@@ -19,8 +19,29 @@ const ETIQUETA_ESTADO: Record<EstadoMedidor, string> = {
   danado: 'Dañado',
 };
 
+// R10: un medidor solo puede registrarse una vez por mes (cualquier estado de sincronización).
+export async function validarLecturaExistente(
+  medidorCodigo: string,
+): Promise<{ existe: boolean; mensaje?: string }> {
+  const db = await getDb();
+  const now = new Date();
+  const inicio = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const fin = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+  const row = await db.getFirstAsync<{ id: number }>(
+    `SELECT id FROM lecturas_pendientes
+     WHERE medidor_codigo = ? AND fecha_registro >= ? AND fecha_registro < ? LIMIT 1`,
+    [medidorCodigo, inicio, fin],
+  );
+  return row
+    ? { existe: true, mensaje: `El medidor ${medidorCodigo} ya tiene una lectura registrada este mes.` }
+    : { existe: false };
+}
+
 // R4: queda PENDIENTE (sincronizado = 0) hasta que la cola la envíe.
 export async function guardarLecturaLocal(datos: DatosLecturaLocal): Promise<number> {
+  const duplicada = await validarLecturaExistente(datos.medidorCodigo);
+  if (duplicada.existe) throw new Error(duplicada.mensaje);
+
   const db = await getDb();
   const res = await db.runAsync(
     `INSERT INTO lecturas_pendientes
@@ -42,4 +63,55 @@ export async function guardarLecturaLocal(datos: DatosLecturaLocal): Promise<num
   // R8: el borrador ya no es necesario una vez guardada la lectura.
   await limpiarBorrador();
   return res.lastInsertRowId;
+}
+
+export interface LecturaRegistrada {
+  id: number;
+  medidor_codigo: string;
+  lectura: number | null;
+  estado_medidor: string;
+  motivo: string | null;
+  descripcion_dano: string | null;
+  consumo_calculado: number | null;
+  foto_uri: string | null;
+  fecha_registro: string;
+  sincronizado: number;
+}
+
+export async function listarLecturas(): Promise<LecturaRegistrada[]> {
+  const db = await getDb();
+  return db.getAllAsync<LecturaRegistrada>(
+    'SELECT * FROM lecturas_pendientes ORDER BY fecha_registro DESC',
+  );
+}
+
+export interface CambiosLectura {
+  lectura: number | null;
+  motivo: string | null;
+  descripcionDano: string | null;
+}
+
+// R10: solo se edita mientras siga PENDIENTE (sincronizado = 0).
+export async function actualizarLecturaPendiente(id: number, cambios: CambiosLectura): Promise<void> {
+  const db = await getDb();
+  const actual = await db.getFirstAsync<{ medidor_codigo: string }>(
+    'SELECT medidor_codigo FROM lecturas_pendientes WHERE id = ?',
+    [id],
+  );
+  const cache = actual
+    ? await db.getFirstAsync<{ ultima_lectura: number }>(
+        'SELECT ultima_lectura FROM medidores_cache WHERE codigo = ?',
+        [actual.medidor_codigo],
+      )
+    : null;
+  const consumo =
+    cambios.lectura !== null && cache ? cambios.lectura - cache.ultima_lectura : null;
+
+  const res = await db.runAsync(
+    `UPDATE lecturas_pendientes
+     SET lectura = ?, motivo = ?, descripcion_dano = ?, consumo_calculado = ?
+     WHERE id = ? AND sincronizado = 0`,
+    [cambios.lectura, cambios.motivo, cambios.descripcionDano, consumo, id],
+  );
+  if (res.changes === 0) throw new Error('La lectura ya fue enviada y no se puede editar');
 }

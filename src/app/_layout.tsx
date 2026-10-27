@@ -10,6 +10,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 
 import { getDb } from '@/db/database';
+import { useSyncListener } from '@/features/sync/useSyncListener';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,6 +24,7 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   const [loaded, error] = useFonts({ Roboto_400Regular, Roboto_500Medium, Roboto_700Bold });
   const [dbListo, setDbListo] = useState(false);
+  useSyncListener();
 
   useEffect(() => {
     getDb()

@@ -79,9 +79,9 @@ export default function ConfirmacionScreen() {
       Alert.alert('Lectura guardada', 'Quedó PENDIENTE de envío.', [
         { text: 'Aceptar', onPress: () => router.replace('/busqueda' as never) },
       ]);
-    } catch {
+    } catch (e) {
       setGuardando(false);
-      Alert.alert('Error', 'No se pudo guardar la lectura.');
+      Alert.alert('Error', e instanceof Error ? e.message : 'No se pudo guardar la lectura.');
     }
   };
 
