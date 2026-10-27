@@ -15,6 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NetworkStatusBar } from '@/components/network-status-bar';
+import { logout } from '@/features/auth/auth.service';
 import { useLecturaStore } from '@/features/lecturas/useLecturaStore';
 import { validarCodigoMedidor } from '@/features/medidores/medidores.validator';
 import { useMedidorQuery } from '@/features/medidores/useMedidorQuery';
@@ -64,6 +65,16 @@ export default function BusquedaScreen() {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          <View style={{ alignItems: 'flex-end', marginBottom: 8 }}>
+            <Pressable
+              style={({ pressed }) => [styles.logout, pressed && { opacity: 0.85 }]}
+              onPress={async () => {
+                await logout();
+                router.replace('/' as never);
+              }}>
+              <Text style={styles.logoutText}>Cerrar Sesión</Text>
+            </Pressable>
+          </View>
           <Text style={styles.title}>Consultar medidor</Text>
           <Pressable onPress={() => router.push('/historial' as never)} style={{ marginBottom: 16 }}>
             <Text style={{ fontFamily: 'Roboto_500Medium', color: C.accent, fontSize: 15 }}>
@@ -158,6 +169,15 @@ export default function BusquedaScreen() {
 }
 
 const styles = StyleSheet.create({
+  logout: {
+    minHeight: 40,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: C.error,
+    justifyContent: 'center',
+  },
+  logoutText: { fontFamily: 'Roboto_500Medium', color: C.error, fontSize: 14 },
   screen: { flex: 1, backgroundColor: C.bg },
   flex: { flex: 1 },
   scroll: { padding: 20 },

@@ -1,4 +1,5 @@
 import { getDb } from '@/db/database';
+import { getSession } from '@/features/auth/auth.service';
 
 import { limpiarBorrador } from './borrador.service';
 import type { EstadoMedidor } from './useLecturaStore';
@@ -43,11 +44,12 @@ export async function guardarLecturaLocal(datos: DatosLecturaLocal): Promise<num
   if (duplicada.existe) throw new Error(duplicada.mensaje);
 
   const db = await getDb();
+  const codigoEmpleado = (await getSession())?.codigoEmpleado ?? null;
   const res = await db.runAsync(
     `INSERT INTO lecturas_pendientes
       (medidor_codigo, lectura, estado_medidor, motivo, descripcion_dano,
-       consumo_calculado, foto_uri, fecha_registro, sincronizado)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+       consumo_calculado, foto_uri, fecha_registro, sincronizado, codigo_empleado)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
     [
       datos.medidorCodigo,
       datos.lectura,
@@ -57,6 +59,7 @@ export async function guardarLecturaLocal(datos: DatosLecturaLocal): Promise<num
       datos.consumoCalculado,
       datos.fotoUri,
       new Date().toISOString(),
+      codigoEmpleado,
     ],
   );
 
@@ -89,6 +92,19 @@ export interface CambiosLectura {
   lectura: number | null;
   motivo: string | null;
   descripcionDano: string | null;
+  fotoUri?: string | null;
+}
+
+// Datos del medidor en caché para reevaluar el consumo al editar (R6).
+export async function obtenerReferenciaConsumo(
+  medidorCodigo: string,
+): Promise<{ ultimaLectura: number; promedioMensual: number } | null> {
+  const db = await getDb();
+  const row = await db.getFirstAsync<{ ultima_lectura: number; promedio_mensual: number }>(
+    'SELECT ultima_lectura, promedio_mensual FROM medidores_cache WHERE codigo = ?',
+    [medidorCodigo],
+  );
+  return row ? { ultimaLectura: row.ultima_lectura, promedioMensual: row.promedio_mensual } : null;
 }
 
 // R10: solo se edita mientras siga PENDIENTE (sincronizado = 0).
@@ -109,9 +125,10 @@ export async function actualizarLecturaPendiente(id: number, cambios: CambiosLec
 
   const res = await db.runAsync(
     `UPDATE lecturas_pendientes
-     SET lectura = ?, motivo = ?, descripcion_dano = ?, consumo_calculado = ?
+     SET lectura = ?, motivo = ?, descripcion_dano = ?, consumo_calculado = ?,
+         foto_uri = COALESCE(?, foto_uri)
      WHERE id = ? AND sincronizado = 0`,
-    [cambios.lectura, cambios.motivo, cambios.descripcionDano, consumo, id],
+    [cambios.lectura, cambios.motivo, cambios.descripcionDano, consumo, cambios.fotoUri ?? null, id],
   );
   if (res.changes === 0) throw new Error('La lectura ya fue enviada y no se puede editar');
 }

@@ -12,7 +12,9 @@ import {
     TextInput,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { NetworkStatusBar } from '@/components/network-status-bar';
 import { EMPLOYEE_CODE_REGEX, getSession, login } from '@/features/auth/auth.service';
 
 const C = {
@@ -61,8 +63,10 @@ export default function LoginScreen() {
   if (hasSession) return <Redirect href={'/busqueda' as never} />;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <NetworkStatusBar />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
@@ -157,6 +161,7 @@ export default function LoginScreen() {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

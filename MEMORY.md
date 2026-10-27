@@ -100,10 +100,12 @@ Ejemplos:
 - Sync (R9): sync.service.ts (cerrojo, sin duplicados) y useSyncListener montado en _layout.
 - R10: validarLecturaExistente en lecturas.service (bloquea al guardar).
 - Pantalla /historial (R10): chips PENDIENTE/ENVIADO, edición solo PENDIENTE, enlace desde /busqueda.
+- Fixes UI auditoría: dismissAll al guardar, logout en /busqueda, barra de red en login, reevaluación de anomalía (confirmación + foto) al editar en /historial, expo-image reemplazado por Image nativo.
+- Correcciones auditoría: .env + fallback URL, sync inmediato tras guardar, fallos 4xx/5xx no bloquean la cola, codigo_empleado por lectura (migración), duplicado mensual al buscar, caché con día de Quito (UTC-5).
 - _layout.tsx: fuentes Roboto, QueryClientProvider (staleTime 24h), init SQLite, Stack.
 - Medidores (R2, R3): medidores.types/validator/service.ts y hook useMedidorQuery.
 - Pantalla /busqueda (TanStack Form + useQuery, tarjeta con 7 datos).
-- NetworkStatusBar (R9) solo montada en /busqueda.
+- NetworkStatusBar (R9) montada en busqueda, historial y registro.
 - Store Zustand useLecturaStore (R5) y borrador.service.ts (R8: guardar, obtener, limpiar, restaurar, autoguardado).
 - Pantalla /registro/paso1-estado (R5, R8): estados, motivo/daño obligatorios, borrador Continuar/Descartar.
 - Utilidades: calculoConsumo.ts (R6), utils/fileSystemStorage.ts (R7), lecturas.service.ts (R4, guarda y limpia borrador).
@@ -114,12 +116,9 @@ Ejemplos:
 ## Falta por hacer
 
 - Probar flujo completo en dispositivo (cámara, permisos, modo avión, sync al reconectar).
-- Mostrar aviso R10 en UI antes del paso 1 (hoy bloquea al guardar).
-- Montar NetworkStatusBar en todas las pantallas (R9) y sincronización automática sin duplicados.
-- limpiarBorrador + resetFormulario al finalizar el registro.
-- Edición PENDIENTE y control de duplicados por mes (R10).
-- Logout, EXPO_PUBLIC_MOCKAPI_URL en .env, limpiar plantilla (explore.tsx, app-tabs).
-- Corregir ruta de axiosClient en ADR-002 (real: src/axios/apiClient.ts).
+- R8: aviso de borrador al abrir la app, no solo en Paso 1.
+- Subir la foto a MockAPI (hoy se envía la ruta local).
+- Limpiar plantilla (explore.tsx, app-tabs) y corregir ADR-002/006/007.
 
 ---
 

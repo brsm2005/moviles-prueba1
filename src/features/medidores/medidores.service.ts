@@ -2,6 +2,7 @@ import NetInfo from '@react-native-community/netinfo';
 
 import { medidoresService } from '@/axios/api.services';
 import { getDb } from '@/db/database';
+import { validarLecturaExistente } from '@/features/lecturas/lecturas.service';
 
 import type { Medidor } from './medidores.types';
 import { validarCodigoMedidor } from './medidores.validator';
@@ -29,7 +30,10 @@ const toMedidor = (r: MedidorRow): Medidor => ({
   promedioMensual: r.promedio_mensual,
 });
 
-const hoy = () => new Date().toISOString().slice(0, 10);
+// Fecha calendario en Quito (UTC-5, sin horario de verano) para no vencer la caché a las 19:00 locales.
+const OFFSET_QUITO_MS = -5 * 60 * 60 * 1000;
+const fechaQuito = (d: Date) => new Date(d.getTime() + OFFSET_QUITO_MS).toISOString().slice(0, 10);
+const hoy = () => fechaQuito(new Date());
 
 async function leerCache(codigo: string): Promise<MedidorRow | null> {
   const db = await getDb();
@@ -63,9 +67,13 @@ export async function obtenerMedidor(codigo: string): Promise<Medidor> {
     throw new Error(validacion.mensajeError);
   }
 
-  // R3: caché del día se sirve sin descargar de nuevo.
+  // R10: si ya se registró este mes, se informa antes de llenar el formulario.
+  const duplicada = await validarLecturaExistente(codigo);
+  if (duplicada.existe) throw new Error(duplicada.mensaje);
+
+  // R3: caché del día (hora de Quito) se sirve sin descargar de nuevo.
   const cache = await leerCache(codigo);
-  if (cache && cache.cached_at.slice(0, 10) === hoy()) {
+  if (cache && fechaQuito(new Date(cache.cached_at)) === hoy()) {
     return toMedidor(cache);
   }
 

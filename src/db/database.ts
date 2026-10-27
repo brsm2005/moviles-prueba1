@@ -36,6 +36,12 @@ async function init(): Promise<SQLite.SQLiteDatabase> {
       updated_at TEXT
     );
   `);
+
+  // Migración para instalaciones previas sin el empleado que capturó la lectura.
+  const columnas = await db.getAllAsync<{ name: string }>('PRAGMA table_info(lecturas_pendientes)');
+  if (!columnas.some((c) => c.name === 'codigo_empleado')) {
+    await db.execAsync('ALTER TABLE lecturas_pendientes ADD COLUMN codigo_empleado TEXT');
+  }
   return db;
 }
 

@@ -1,15 +1,25 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+    ActivityIndicator,
+    Alert,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NetworkStatusBar } from '@/components/network-status-bar';
 import { calcularConsumo } from '@/features/lecturas/calculoConsumo';
 import { guardarLecturaLocal } from '@/features/lecturas/lecturas.service';
 import { useLecturaStore } from '@/features/lecturas/useLecturaStore';
-import { useMedidorQuery } from '@/features/medidores/useMedidorQuery';
+import { medidorQueryKey, useMedidorQuery } from '@/features/medidores/useMedidorQuery';
+import { sincronizarSiHayRed } from '@/features/sync/sync.service';
 import { guardarFotoPermanente } from '@/utils/fileSystemStorage';
 
 const C = {
@@ -25,6 +35,7 @@ const ETIQUETA = { normal: 'Normal', inaccesible: 'Inaccesible', danado: 'Dañad
 
 export default function ConfirmacionScreen() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const datos = useLecturaStore();
   const { data: medidor } = useMedidorQuery(datos.medidorCodigo || null);
   const [permiso, pedirPermiso] = useCameraPermissions();
@@ -76,8 +87,18 @@ export default function ConfirmacionScreen() {
         fotoUri: datos.fotoUri,
       });
       useLecturaStore.getState().resetFormulario();
+      // La entrada en caché ocultaría el aviso de duplicado mensual en la próxima búsqueda.
+      queryClient.removeQueries({ queryKey: medidorQueryKey(datos.medidorCodigo) });
+      sincronizarSiHayRed().catch(() => undefined);
       Alert.alert('Lectura guardada', 'Quedó PENDIENTE de envío.', [
-        { text: 'Aceptar', onPress: () => router.replace('/busqueda' as never) },
+        {
+          text: 'Aceptar',
+          onPress: () => {
+            // Limpia la pila para que atrás no vuelva a los pasos del registro.
+            if (router.canDismiss()) router.dismissAll();
+            router.replace('/busqueda' as never);
+          },
+        },
       ]);
     } catch (e) {
       setGuardando(false);

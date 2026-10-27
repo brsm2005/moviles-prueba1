@@ -1,10 +1,12 @@
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
     Alert,
     FlatList,
+    Image,
     KeyboardAvoidingView,
     Modal,
     Platform,
@@ -17,11 +19,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NetworkStatusBar } from '@/components/network-status-bar';
+import { calcularConsumo } from '@/features/lecturas/calculoConsumo';
 import {
     actualizarLecturaPendiente,
     listarLecturas,
+    obtenerReferenciaConsumo,
     type LecturaRegistrada,
 } from '@/features/lecturas/lecturas.service';
+import { guardarFotoPermanente } from '@/utils/fileSystemStorage';
 
 const C = {
   primary: '#004B87',
@@ -118,12 +123,39 @@ function EditarLecturaModal({
   const esInaccesible = lectura.estado_medidor === 'Inaccesible';
   const esDanado = lectura.estado_medidor === 'Dañado';
 
+  const { data: referencia } = useQuery({
+    queryKey: ['referencia-consumo', lectura.medidor_codigo],
+    queryFn: () => obtenerReferenciaConsumo(lectura.medidor_codigo),
+  });
+  const [confirmado, setConfirmado] = useState(false);
+  const [fotoUri, setFotoUri] = useState<string | null>(lectura.foto_uri);
+  const [camaraAbierta, setCamaraAbierta] = useState(false);
+  const camaraRef = useRef<CameraView>(null);
+  const [permiso, pedirPermiso] = useCameraPermissions();
+
+  const abrirCamara = async () => {
+    if (!permiso?.granted && !(await pedirPermiso()).granted) return;
+    setCamaraAbierta(true);
+  };
+
+  const tomarFoto = async () => {
+    try {
+      const foto = await camaraRef.current?.takePictureAsync({ quality: 0.6 });
+      if (!foto) return;
+      setFotoUri(guardarFotoPermanente(foto.uri, lectura.medidor_codigo));
+      setCamaraAbierta(false);
+    } catch {
+      Alert.alert('Error', 'No se pudo guardar la foto. Intente nuevamente.');
+    }
+  };
+
   const guardar = useMutation({
     mutationFn: (v: { lectura: string; motivo: string; descripcion: string }) =>
       actualizarLecturaPendiente(lectura.id, {
         lectura: esInaccesible || !v.lectura.trim() ? null : Number(v.lectura),
         motivo: esInaccesible ? v.motivo.trim() : null,
         descripcionDano: esDanado ? v.descripcion.trim() : null,
+        fotoUri,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lecturas'] });
@@ -143,6 +175,24 @@ function EditarLecturaModal({
     },
     onSubmit: ({ value }) => guardar.mutateAsync(value),
   });
+
+  if (camaraAbierta) {
+    return (
+      <Modal animationType="slide" onRequestClose={() => setCamaraAbierta(false)}>
+        <View style={styles.camaraContenedor}>
+          <CameraView ref={camaraRef} style={StyleSheet.absoluteFill} facing="back" />
+          <View style={styles.acciones}>
+            <Pressable style={[styles.button, styles.secundario]} onPress={() => setCamaraAbierta(false)}>
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </Pressable>
+            <Pressable style={styles.button} onPress={tomarFoto}>
+              <Text style={styles.buttonText}>Capturar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
 
   return (
     <Modal animationType="slide" transparent onRequestClose={onClose}>
@@ -235,18 +285,56 @@ function EditarLecturaModal({
                 (esInaccesible || esDanado
                   ? !l.trim() || NUMERO.test(l.trim())
                   : NUMERO.test(l.trim()));
+              // R6: se reevalúa con la lectura editada.
+              const anomalo =
+                !esInaccesible &&
+                !!referencia &&
+                NUMERO.test(l.trim()) &&
+                calcularConsumo(Number(l), referencia.ultimaLectura, referencia.promedioMensual)
+                  .esAnomalo;
+              const fotoObligatoria = anomalo || esDanado;
+              const completo = ok && (!anomalo || confirmado) && (!fotoObligatoria || !!fotoUri);
               return (
-                <View style={styles.acciones}>
-                  <Pressable style={[styles.button, styles.secundario]} onPress={onClose}>
-                    <Text style={styles.buttonText}>Cancelar</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.button, (!ok || guardar.isPending) && styles.disabled]}
-                    disabled={!ok || guardar.isPending}
-                    onPress={() => form.handleSubmit()}>
-                    <Text style={styles.buttonText}>Guardar</Text>
-                  </Pressable>
-                </View>
+                <>
+                  {anomalo && (
+                    <View style={styles.alerta}>
+                      <Text style={styles.alertaTitulo}>Consumo alto detectado</Text>
+                      <Text style={styles.alertaTexto}>
+                        Supera 3 veces el promedio mensual. La foto es obligatoria.
+                      </Text>
+                      <Pressable style={styles.checkRow} onPress={() => setConfirmado(!confirmado)}>
+                        <View style={[styles.checkbox, confirmado && styles.checkboxOn]}>
+                          {confirmado && <Text style={styles.checkMark}>✓</Text>}
+                        </View>
+                        <Text style={styles.checkText}>Confirmar que la lectura es correcta</Text>
+                      </Pressable>
+                    </View>
+                  )}
+
+                  {(fotoObligatoria || fotoUri) && (
+                    <View style={styles.group}>
+                      <Text style={styles.label}>
+                        Foto {fotoObligatoria ? '(obligatoria)' : '(opcional)'}
+                      </Text>
+                      {fotoUri && <Image source={{ uri: fotoUri }} style={styles.foto} />}
+                      <Pressable style={[styles.button, { flex: 0, backgroundColor: C.accent }]} onPress={abrirCamara}>
+                        <Text style={styles.buttonText}>{fotoUri ? 'Repetir foto' : 'Tomar foto'}</Text>
+                      </Pressable>
+                    </View>
+                  )}
+
+                  <View style={styles.acciones}>
+                    <Pressable style={[styles.button, styles.secundario]} onPress={onClose}>
+                      <Text style={styles.buttonText}>Cancelar</Text>
+                    </Pressable>
+                    <Pressable
+                      style={[styles.button, (!completo || guardar.isPending) && styles.disabled]}
+                      disabled={!completo || guardar.isPending}
+                      onPress={() => form.handleSubmit()}>
+                      <Text style={styles.buttonText}>Guardar</Text>
+                    </Pressable>
+                  </View>
+                </>
               );
             }}
           </form.Subscribe>
@@ -307,6 +395,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   secundario: { backgroundColor: '#64748B' },
+  camaraContenedor: { flex: 1, backgroundColor: '#000', justifyContent: 'flex-end', padding: 20 },
+  foto: { width: '100%', height: 160, borderRadius: 12, marginBottom: 12 },
+  alerta: {
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1.5,
+    borderColor: C.warning,
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 16,
+  },
+  alertaTitulo: { fontFamily: 'Roboto_700Bold', fontSize: 16, color: '#B45309' },
+  alertaTexto: { fontFamily: 'Roboto_400Regular', fontSize: 14, color: '#92400E', marginTop: 4 },
+  checkRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12, minHeight: 44 },
+  checkbox: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: C.warning,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  checkboxOn: { backgroundColor: C.warning },
+  checkMark: { color: '#fff', fontSize: 18, fontFamily: 'Roboto_700Bold' },
+  checkText: { flex: 1, fontFamily: 'Roboto_500Medium', fontSize: 15, color: '#92400E' },
   disabled: { opacity: 0.45 },
   buttonText: { fontFamily: 'Roboto_500Medium', color: '#fff', fontSize: 18 },
 });
