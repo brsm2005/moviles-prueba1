@@ -11,3 +11,6 @@
    - Exigir checkbox de confirmación del técnico.
    - Marcar la foto como obligatoria.
 4. **Borrador R8:** Guardar el estado del formulario en la tabla `borrador_registro` de SQLite en cada cambio para recuperar la captura si la app se cierra.
+
+## Reglas de Ejecución
+Recuerda revisar las reglas de negocio y las ADR para mantener consistencia en la implementación.

@@ -1,15 +1,6 @@
-import { apiClient } from './apiClient';
+import type { Medidor } from '@/features/medidores/medidores.types';
 
-export interface Medidor {
-  codigo: string;
-  direccion: string;
-  sector: string;
-  numeroCuenta: string;
-  estado: string;
-  ultimaLectura: number;
-  fechaLectura: string;
-  promedioMensual: number;
-}
+import { apiClient } from './apiClient';
 
 export interface Lectura {
   id?: string;

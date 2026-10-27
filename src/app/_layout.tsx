@@ -4,20 +4,43 @@ import {
   Roboto_700Bold,
   useFonts,
 } from '@expo-google-fonts/roboto';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import { getDb } from '@/db/database';
 
 SplashScreen.preventAutoHideAsync();
 
+// R3: los datos del medidor se mantienen vigentes durante la jornada (24 h).
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 24 * 60 * 60 * 1000, gcTime: 24 * 60 * 60 * 1000 },
+  },
+});
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({ Roboto_400Regular, Roboto_500Medium, Roboto_700Bold });
+  const [dbListo, setDbListo] = useState(false);
 
   useEffect(() => {
-    if (loaded || error) SplashScreen.hideAsync();
-  }, [loaded, error]);
+    getDb()
+      .catch(() => undefined)
+      .finally(() => setDbListo(true));
+  }, []);
 
-  if (!loaded && !error) return null;
+  const listo = (loaded || !!error) && dbListo;
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  useEffect(() => {
+    if (listo) SplashScreen.hideAsync();
+  }, [listo]);
+
+  if (!listo) return null;
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Stack screenOptions={{ headerShown: false }} />
+    </QueryClientProvider>
+  );
 }
