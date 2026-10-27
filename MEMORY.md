@@ -97,15 +97,23 @@ Ejemplos:
 - Auth: src/features/auth/auth.service.ts (sesión en AsyncStorage).
 - Login R1 en src/app/index.tsx (TanStack Form, redirige a /busqueda).
 - Deps agregadas: expo-sqlite, @react-native-async-storage/async-storage.
+- _layout.tsx: fuentes Roboto, QueryClientProvider (staleTime 24h), init SQLite, Stack.
+- Medidores (R2, R3): medidores.types/validator/service.ts y hook useMedidorQuery.
+- Pantalla /busqueda (TanStack Form + useQuery, tarjeta con 7 datos).
+- NetworkStatusBar (R9) solo montada en /busqueda.
+- Store Zustand useLecturaStore (R5) y borrador.service.ts (R8: guardar, obtener, limpiar, restaurar, autoguardado).
+- Pantalla /registro/paso1-estado (R5, R8): estados, motivo/daño obligatorios, borrador Continuar/Descartar.
 
 ---
 
 ## Falta por hacer
 
-- Cargar fuentes Roboto y proveedor QueryClient en _layout.tsx; quitar tabs de plantilla.
-- Pantalla /busqueda (R2, R3), registro (R4-R8), header de red/pendientes (R9), edición (R10).
-- Hook useNetworkStatus, sincronización de cola, logout.
-- Definir EXPO_PUBLIC_MOCKAPI_URL en .env.
+- Pantallas paso2-lectura (R6), paso3 foto (R7; obligatoria si Dañado o anómalo) y confirmacion.
+- Montar NetworkStatusBar en todas las pantallas (R9) y sincronización automática sin duplicados.
+- limpiarBorrador + resetFormulario al finalizar el registro.
+- Edición PENDIENTE y control de duplicados por mes (R10).
+- Logout, EXPO_PUBLIC_MOCKAPI_URL en .env, limpiar plantilla (explore.tsx, app-tabs).
+- Corregir ruta de axiosClient en ADR-002 (real: src/axios/apiClient.ts).
 
 ---
 

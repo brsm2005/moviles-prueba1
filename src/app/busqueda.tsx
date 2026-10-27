@@ -2,21 +2,22 @@ import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NetworkStatusBar } from '@/components/network-status-bar';
-import { useMedidorQuery } from '@/features/medidores/useMedidorQuery';
+import { useLecturaStore } from '@/features/lecturas/useLecturaStore';
 import { validarCodigoMedidor } from '@/features/medidores/medidores.validator';
+import { useMedidorQuery } from '@/features/medidores/useMedidorQuery';
 
 const C = {
   primary: '#004B87',
@@ -133,7 +134,14 @@ export default function BusquedaScreen() {
               ))}
               <Pressable
                 style={({ pressed }) => [styles.button, styles.cta, pressed && { opacity: 0.85 }]}
-                onPress={() => router.push('/registro/paso1-estado' as never)}>
+                onPress={() => {
+                  const s = useLecturaStore.getState();
+                  if (s.medidorCodigo !== medidor.codigo) {
+                    s.resetFormulario();
+                    s.setMedidorCodigo(medidor.codigo);
+                  }
+                  router.push('/registro/paso1-estado' as never);
+                }}>
                 <Text style={styles.buttonText}>Iniciar Registro</Text>
               </Pressable>
             </View>

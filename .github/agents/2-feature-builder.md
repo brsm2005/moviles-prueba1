@@ -14,3 +14,4 @@
 
 ## Reglas de Ejecución
 Recuerda revisar las reglas de negocio y las ADR para mantener consistencia en la implementación.
+Siempre en cualquier iteración actualiza el MEMORY.md con Ya implementado y Falta por hacer

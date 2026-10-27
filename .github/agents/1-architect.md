@@ -12,3 +12,4 @@
 ## Reglas de Ejecución
 No agregues librerías adicionales fuera de las especificadas en package.json. Todo el almacenamiento offline estructurado debe ir en SQLite, salvo la sesión del usuario que va en AsyncStorage.
 Recuerda revisar las adr (Architectural Decision Records) para mantener consistencia en las decisiones de arquitectura.
+Siempre en cualquier iteración actualiza el MEMORY.md con Ya implementado y Falta por hacer
