@@ -148,10 +148,12 @@ export default function Paso2LecturaScreen() {
       <BotonCancelarRegistro />
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}>
         <ScrollView
           contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled">
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive">
           
           <BotonVolver onPress={() => router.back()} label="‹ Volver al Paso 1" />
 

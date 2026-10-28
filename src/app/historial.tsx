@@ -12,6 +12,7 @@ import { useForm } from '@tanstack/react-form';
       Modal,
       Platform,
       Pressable,
+      ScrollView,
       StyleSheet,
       Text,
       TextInput,
@@ -402,21 +403,26 @@ import { useForm } from '@tanstack/react-form';
         <Modal animationType="slide" transparent onRequestClose={onClose}>
           <KeyboardAvoidingView
             style={styles.overlay}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}>
             <View style={styles.sheet}>
-              <View style={styles.sheetHeader}>
-                <View>
-                  <Text style={styles.sheetSubtitle}>Editar Registro Pendiente</Text>
-                  <Text style={styles.sheetTitle}>Medidor: {lectura.medidor_codigo}</Text>
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="interactive"
+                contentContainerStyle={styles.sheetScroll}>
+                <View style={styles.sheetHeader}>
+                  <View>
+                    <Text style={styles.sheetSubtitle}>Editar Registro Pendiente</Text>
+                    <Text style={styles.sheetTitle}>Medidor: {lectura.medidor_codigo}</Text>
+                  </View>
+                  <Pressable style={styles.sheetCloseBtn} onPress={onClose}>
+                    <Text style={styles.sheetCloseText}>✕</Text>
+                  </Pressable>
                 </View>
-                <Pressable style={styles.sheetCloseBtn} onPress={onClose}>
-                  <Text style={styles.sheetCloseText}>✕</Text>
-                </Pressable>
-              </View>
     
-              <Text style={styles.sheetEstadoMeta}>Estado: {lectura.estado_medidor}</Text>
+                <Text style={styles.sheetEstadoMeta}>Estado: {lectura.estado_medidor}</Text>
     
-              {!esInaccesible && (
+                {!esInaccesible && (
                 <form.Field name="lectura">
                   {(field) => (
                     <View style={styles.group}>
@@ -432,11 +438,11 @@ import { useForm } from '@tanstack/react-form';
                         placeholderTextColor="#94A3B8"
                       />
                     </View>
-                  )}
+                    )}
                 </form.Field>
               )}
     
-              {esInaccesible && (
+                {esInaccesible && (
                 <form.Field name="motivo">
                   {(field) => (
                     <View style={styles.group}>
@@ -449,11 +455,11 @@ import { useForm } from '@tanstack/react-form';
                         placeholderTextColor="#94A3B8"
                       />
                     </View>
-                  )}
+                    )}
                 </form.Field>
               )}
     
-              {esDanado && (
+                {esDanado && (
                 <form.Field name="descripcion">
                   {(field) => (
                     <View style={styles.group}>
@@ -467,12 +473,12 @@ import { useForm } from '@tanstack/react-form';
                         placeholderTextColor="#94A3B8"
                       />
                     </View>
-                  )}
+                    )}
                 </form.Field>
               )}
     
-              <form.Subscribe
-                selector={(s) => [s.values.lectura, s.values.motivo, s.values.descripcion] as const}>
+                <form.Subscribe
+                  selector={(s) => [s.values.lectura, s.values.motivo, s.values.descripcion] as const}>
                 {([l, m, d]) => {
                   const anomalo =
                     !esInaccesible &&
@@ -545,7 +551,8 @@ import { useForm } from '@tanstack/react-form';
                     </>
                   );
                 }}
-              </form.Subscribe>
+                </form.Subscribe>
+              </ScrollView>
             </View>
           </KeyboardAvoidingView>
         </Modal>
@@ -655,6 +662,7 @@ import { useForm } from '@tanstack/react-form';
         padding: 20,
         maxHeight: '90%',
       },
+      sheetScroll: { paddingBottom: 8 },
       sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
       sheetSubtitle: { fontFamily: 'Roboto_400Regular', fontSize: 13, color: PALETTE.textMuted },
       sheetTitle: { fontFamily: 'Roboto_700Bold', fontSize: 20, color: PALETTE.primary, marginTop: 2 },

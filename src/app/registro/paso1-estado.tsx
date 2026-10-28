@@ -58,8 +58,12 @@ export default function Paso1EstadoScreen() {
       <BotonCancelarRegistro />
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive">
           <Text style={styles.step}>Paso 1 de 3</Text>
           <Text style={styles.title}>Estado del medidor</Text>
           {!!store.getState().medidorCodigo && (

@@ -92,8 +92,12 @@ export default function BusquedaScreen() {
       <HeaderEpmaps />
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive">
           <View style={{ alignItems: 'flex-end', marginBottom: 8 }}>
             <Pressable
               style={({ pressed }) => [styles.logout, pressed && { opacity: 0.85 }]}

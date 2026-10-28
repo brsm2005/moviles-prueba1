@@ -1,4 +1,4 @@
-﻿# MEMORY.md - Metodología FDD (Feature Driven Development)
+# MEMORY.md - Metodología FDD (Feature Driven Development)
 
 ## Propósito
 Este archivo sirve como memoria de referencia para proyectos que utilizan la metodología FDD (Feature Driven Development), permitiendo mantener criterios, decisiones y prácticas consistentes durante el desarrollo.
@@ -127,6 +127,7 @@ Ejemplos:
 - Permiso de cámara: modal previo en español (appAlert con acciones) antes del diálogo del sistema.
 
 - Búsqueda: alerta de éxito (✓ verde) al encontrar medidor y se oculta el teclado.
+- Teclado: `KeyboardAvoidingView` con ajuste en iOS/Android y `ScrollView` interactivo en todos los formularios; edición de historial también desplaza su modal al enfocar campos.
 
 ## Falta por hacer
 

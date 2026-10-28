@@ -66,8 +66,12 @@ export default function LoginScreen() {
       <HeaderEpmaps />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive">
         <View style={styles.card}>
           <Text style={styles.title}>Iniciar sesión</Text>
           <Text style={styles.lead}>Ingrese con su código de empleado para comenzar la jornada.</Text>
