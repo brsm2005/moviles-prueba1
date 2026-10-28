@@ -19,6 +19,15 @@ export interface Lectura {
 }
 
 export const medidoresService = {
+  async getAll(): Promise<Medidor[]> {
+    try {
+      const { data } = await apiClient.get<Medidor[]>('/medidores');
+      return data;
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response?.status === 404) return [];
+      throw e;
+    }
+  },
   async getByCodigo(codigo: string): Promise<Medidor | null> {
     try {
       const { data } = await apiClient.get<Medidor[]>(`/medidores?codigo=${codigo}`);
@@ -32,6 +41,15 @@ export const medidoresService = {
 };
 
 export const lecturasService = {
+  async getAll(): Promise<Lectura[]> {
+    try {
+      const { data } = await apiClient.get<Lectura[]>('/lecturas');
+      return data;
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response?.status === 404) return [];
+      throw e;
+    }
+  },
   async create(lectura: Lectura): Promise<Lectura> {
     const { data } = await apiClient.post<Lectura>('/lecturas', lectura);
     return data;

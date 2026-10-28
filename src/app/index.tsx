@@ -47,7 +47,7 @@ export default function LoginScreen() {
         await login(value.codigo.trim(), value.clave);
         router.replace('/busqueda' as never);
       } catch {
-        appAlert('Acceso denegado', 'No se pudo iniciar sesión. Verifique su código y clave.', 'error');
+        appAlert('Acceso denegado', 'Usuario o clave incorrectos.', 'error');
       }
     },
   });
@@ -90,9 +90,9 @@ export default function LoginScreen() {
                   value={field.state.value}
                   onChangeText={field.handleChange}
                   onBlur={field.handleBlur}
-                  autoCapitalize="characters"
+                  autoCapitalize="words"
                   autoCorrect={false}
-                  placeholder="Ej. EMP-1001"
+                  placeholder="Ej. Bryan"
                   placeholderTextColor="#94A3B8"
                 />
                 {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (

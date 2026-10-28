@@ -23,7 +23,7 @@ El trabajo en campo abarca sectores rurales y sótanos con cobertura de red inte
 | **Botón de sincronización manual** | Simplifica enormemente la programación, dejando la responsabilidad del envío en manos del usuario cuando este decida presionar un botón. | Incumple de forma directa el requisito R9, el cual exige explícitamente que las lecturas pendientes se envíen solas y de manera automática al recuperar la conexión. |
 
 ## Decisión
-Se usa **`@react-native-community/netinfo`** mediante un hook global (`useNetworkStatus`) que provee el estado de conexión a la barra superior (Header) de la app. Al detectar transición de estado a "Conectado", se ejecuta automáticamente el servicio de sincronización (`syncService`) que envía una a una las lecturas pendientes de SQLite a MockAPI.
+Se usa **`@react-native-community/netinfo`** mediante un hook global (`useNetworkStatus`) que provee el estado de conexión a la barra superior (Header) de la app. Al detectar transición de estado a "Conectado" (y al abrir la app ya con red), `useSyncListener` ejecuta automáticamente el servicio de sincronización (`sincronizarLecturasPendientes`), que envía una a una las lecturas pendientes de SQLite a MockAPI. Cuando termina, llama a `precargarDatosRemotos` (`src/features/sync/precarga.service.ts`), que hace `GET /medidores` y `GET /lecturas` y los guarda en SQLite: medidores en `medidores_cache` y lecturas remotas como `sincronizado = 1`, sin duplicar las existentes (mismo medidor y `fecha_registro`). Si la precarga falla, se ignora y la app sigue offline.
 
 ## Consecuencias
 - Cumplimiento total de R9: el técnico visualiza de forma permanente su estado de red y las lecturas pendientes desde cualquier pantalla.
@@ -31,7 +31,8 @@ Se usa **`@react-native-community/netinfo`** mediante un hook global (`useNetwor
 - **Riesgo:** Si la red es sumamente inestable y oscila constantemente entre conectada y desconectada, se podrían disparar múltiples ejecuciones del servicio de sincronización. Se debe implementar un cerrojo lógico (*flag* de ejecución activa) en `syncService` para evitar peticiones concurrentes simultáneas.
 
 ## Verificación
-- La barra de estado en `src/components/ui/NetworkHeader.tsx` refleja el estado de red y la cantidad de registros pendientes.
+- La barra de estado en `src/components/network-status-bar.tsx`, dentro de `header-epmaps.tsx`, refleja el estado de red y la cantidad de registros pendientes.
+- Al abrir la app con red, o al reconectar, se ejecutan los `GET` a `/medidores` y `/lecturas` y la caché local queda actualizada.
 - Al registrar lecturas en modo avión (quedan en estado `PENDIENTE`), desactivar el modo avión y restaurar la red, los registros en SQLite cambian automáticamente su estado a `ENVIADO` (`sincronizado = 1`) y el contador del Header regresa a 0.
 
 ## Uso de IA

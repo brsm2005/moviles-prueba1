@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 
 import { getDb } from '@/db/database';
 import { AppAlertHost } from '@/components/app-alert';
+import { iniciarProteccionBorrador } from '@/features/lecturas/borrador.service';
 import { useSyncListener } from '@/features/sync/useSyncListener';
 
 SplashScreen.preventAutoHideAsync();
@@ -26,6 +27,8 @@ export default function RootLayout() {
   const [loaded, error] = useFonts({ Roboto_400Regular, Roboto_500Medium, Roboto_700Bold });
   const [dbListo, setDbListo] = useState(false);
   useSyncListener();
+
+  useEffect(() => iniciarProteccionBorrador(), []);
 
   useEffect(() => {
     getDb()

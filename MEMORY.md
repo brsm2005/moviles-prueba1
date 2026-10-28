@@ -1,4 +1,4 @@
-# MEMORY.md - Metodología FDD (Feature Driven Development)
+﻿# MEMORY.md - Metodología FDD (Feature Driven Development)
 
 ## Propósito
 Este archivo sirve como memoria de referencia para proyectos que utilizan la metodología FDD (Feature Driven Development), permitiendo mantener criterios, decisiones y prácticas consistentes durante el desarrollo.
@@ -94,7 +94,7 @@ Ejemplos:
 
 - SQLite: src/db/database.ts (medidores_cache, lecturas_pendientes, borrador_registro).
 - Axios: src/axios/apiClient.ts y api.services.ts (medidores, lecturas).
-- Auth: src/features/auth/auth.service.ts (sesión en AsyncStorage).
+- Auth (R1/RF1): auth.service.ts con usuarios fijos Bryan/Salvador/Juan (claves Bryan123/Salvador123/Juan123), sesión en AsyncStorage.
 - Login R1 en src/app/index.tsx (TanStack Form, redirige a /busqueda).
 - Deps agregadas: expo-sqlite, @react-native-async-storage/async-storage.
 - Sync (R9): sync.service.ts (cerrojo, sin duplicados) y useSyncListener montado en _layout.
@@ -109,7 +109,11 @@ Ejemplos:
 - Pantalla /busqueda (TanStack Form + useQuery, tarjeta con 7 datos).
 - NetworkStatusBar (R9) montada en busqueda, historial y registro.
 - Store Zustand useLecturaStore (R5) y borrador.service.ts (R8: guardar, obtener, limpiar, restaurar, autoguardado).
-- Pantalla /registro/paso1-estado (R5, R8): estados, motivo/daño obligatorios, borrador Continuar/Descartar.
+- Pantalla /registro/paso1-estado (R5): estados, motivo/daño obligatorios.
+- Precarga: sync/precarga.service.ts hace GET medidores y lecturas al abrir con red y al reconectar (upsert en SQLite).
+- R8: autoguardado global + volcado en AppState (borrador.service), aviso Continuar/Descartar al abrir en /busqueda (useRecuperarBorrador).
+- Botón Cancelar registro (components/boton-cancelar-registro.tsx) en paso1, paso2 y confirmación.
+- Limpieza: eliminados explore, app-tabs, themed-*, hooks/theme, reset-project y assets de plantilla.
 - Utilidades: calculoConsumo.ts (R6), utils/fileSystemStorage.ts (R7), lecturas.service.ts (R4, guarda y limpia borrador).
 - Pantallas paso2-lectura (R5, R6) y confirmacion (R4, R7, R8: cámara, guardar, reset, alerta).
 - UI moderna (skill epmaps-uio-moderno): components/header-epmaps.tsx (banner azul con logo+EPMAPS+píldoras de red/pendientes) en todas las pantallas incl. login; botones con relieve; Alert de cierre de sesión y de login fallido.
@@ -121,7 +125,7 @@ Ejemplos:
 - Probar flujo completo en dispositivo (cámara, permisos, modo avión, sync al reconectar).
 - R8: aviso de borrador al abrir la app, no solo en Paso 1.
 - Subir la foto a MockAPI (hoy se envía la ruta local).
-- Limpiar plantilla (explore.tsx, app-tabs) y corregir ADR-002/006/007.
+- ADR-002/006/007 actualizados (usuarios fijos, precarga). ADR-008 documenta borrador global y Cancelar.
 
 ---
 

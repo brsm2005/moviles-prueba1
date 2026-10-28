@@ -1,10 +1,8 @@
 import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -17,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HeaderEpmaps } from '@/components/header-epmaps';
-import { iniciarAutoguardado } from '@/features/lecturas/borrador.service';
+import { BotonCancelarRegistro } from '@/components/boton-cancelar-registro';
 import { calcularConsumo } from '@/features/lecturas/calculoConsumo';
 import { useLecturaStore } from '@/features/lecturas/useLecturaStore';
 import { useMedidorQuery } from '@/features/medidores/useMedidorQuery';
@@ -61,12 +59,6 @@ export default function Paso2LecturaScreen() {
 
   // R5: En 'danado' la lectura es opcional; en 'normal' es obligatoria.
   const lecturaOpcional = estado === 'danado';
-
-  // R8: Asegurar autoguardado en SQLite al interactuar en este paso.
-  useEffect(() => {
-    const detenerAutoguardado = iniciarAutoguardado();
-    return () => detenerAutoguardado();
-  }, []);
 
   const form = useForm({
     defaultValues: { lectura: useLecturaStore.getState().lecturaActual },
@@ -141,6 +133,7 @@ export default function Paso2LecturaScreen() {
     return (
       <SafeAreaView style={styles.screen} edges={[]}>
         <HeaderEpmaps />
+        <BotonCancelarRegistro />
         <View style={styles.center}>
           <ActivityIndicator size="large" color={PALETTE.primary} />
           <Text style={styles.loadingText}>Cargando datos del medidor...</Text>
@@ -152,6 +145,7 @@ export default function Paso2LecturaScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={[]}>
       <HeaderEpmaps />
+      <BotonCancelarRegistro />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>

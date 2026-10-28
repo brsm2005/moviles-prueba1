@@ -1,8 +1,6 @@
 import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -14,18 +12,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BotonCancelarRegistro } from '@/components/boton-cancelar-registro';
 import { HeaderEpmaps } from '@/components/header-epmaps';
-import {
-    guardarBorrador,
-    iniciarAutoguardado,
-    limpiarBorrador,
-    obtenerBorrador,
-} from '@/features/lecturas/borrador.service';
-import {
-    seleccionarDatos,
-    useLecturaStore,
-    type EstadoMedidor,
-} from '@/features/lecturas/useLecturaStore';
+import { useLecturaStore, type EstadoMedidor } from '@/features/lecturas/useLecturaStore';
 
 const C = {
   primary: '#004B87',
@@ -46,9 +35,6 @@ const MOTIVOS = ['Perro agresivo', 'Predio cerrado', 'Medidor bloqueado', 'Acces
 
 export default function Paso1EstadoScreen() {
   const router = useRouter();
-  const [listo, setListo] = useState(false);
-  const detener = useRef<(() => void) | null>(null);
-
   const store = useLecturaStore;
   const inicial = store.getState();
 
@@ -66,66 +52,10 @@ export default function Paso1EstadoScreen() {
     },
   });
 
-  // R8: al entrar, ofrecer continuar o descartar un borrador distinto al estado actual.
-  useEffect(() => {
-    let activo = true;
-
-    const arrancar = () => {
-      if (!activo) return;
-      const s = store.getState();
-      if (s.medidorCodigo) guardarBorrador(seleccionarDatos(s)).catch(() => undefined);
-      detener.current = iniciarAutoguardado();
-      setListo(true);
-    };
-
-    obtenerBorrador()
-      .then((borrador) => {
-        if (!activo) return;
-        const actual = seleccionarDatos(store.getState());
-        if (!borrador || JSON.stringify(borrador) === JSON.stringify(actual)) {
-          arrancar();
-          return;
-        }
-        Alert.alert(
-          'Captura pendiente',
-          `Hay un registro sin terminar del medidor ${borrador.medidorCodigo}.`,
-          [
-            {
-              text: 'Descartar',
-              style: 'destructive',
-              onPress: () => {
-                limpiarBorrador().finally(arrancar);
-              },
-            },
-            {
-              text: 'Continuar captura pendiente',
-              onPress: () => {
-                store.getState().restaurarFormulario(borrador);
-                form.reset({
-                  estado: borrador.estadoMedidor,
-                  motivo: borrador.motivoInaccesibilidad,
-                  descripcion: borrador.descripcionDano,
-                });
-                arrancar();
-              },
-            },
-          ],
-          { cancelable: false },
-        );
-      })
-      .catch(arrancar);
-
-    return () => {
-      activo = false;
-      detener.current?.();
-      detener.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <SafeAreaView style={styles.screen} edges={[]}>
       <HeaderEpmaps subtitulo="Registro" />
+      <BotonCancelarRegistro />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -266,7 +196,7 @@ export default function Paso1EstadoScreen() {
                 estado === 'normal' ||
                 (estado === 'inaccesible' && motivo.trim().length > 0) ||
                 (estado === 'danado' && descripcion.trim().length > 0);
-              const habilitado = completo && listo;
+              const habilitado = completo;
               return (
                 <Pressable
                   style={({ pressed }) => [

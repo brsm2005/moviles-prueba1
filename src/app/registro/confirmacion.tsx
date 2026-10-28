@@ -14,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
     } from 'react-native';
     import { SafeAreaView } from 'react-native-safe-area-context';
     
+    import { BotonCancelarRegistro } from '@/components/boton-cancelar-registro';
     import { HeaderEpmaps } from '@/components/header-epmaps';
     import { calcularConsumo } from '@/features/lecturas/calculoConsumo';
     import { guardarLecturaLocal } from '@/features/lecturas/lecturas.service';
@@ -192,6 +193,7 @@ import { useQueryClient } from '@tanstack/react-query';
       return (
         <SafeAreaView style={styles.screen} edges={[]}>
           <HeaderEpmaps subtitulo="Confirmación" />
+          <BotonCancelarRegistro />
           <ScrollView contentContainerStyle={styles.scroll}>
             <BotonVolver onPress={() => router.back()} label="‹ Volver al Paso Anterior" />
     

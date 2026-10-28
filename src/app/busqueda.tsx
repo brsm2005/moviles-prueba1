@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { appAlert } from '@/components/app-alert';
 import { HeaderEpmaps } from '@/components/header-epmaps';
 import { logout } from '@/features/auth/auth.service';
+import { useRecuperarBorrador } from '@/features/lecturas/useRecuperarBorrador';
 import { useLecturaStore } from '@/features/lecturas/useLecturaStore';
 import { validarCodigoMedidor } from '@/features/medidores/medidores.validator';
 import { useMedidorQuery } from '@/features/medidores/useMedidorQuery';
@@ -32,6 +33,7 @@ const C = {
 
 export default function BusquedaScreen() {
   const router = useRouter();
+  useRecuperarBorrador();
   const [codigoConsulta, setCodigoConsulta] = useState<string | null>(null);
   const query = useMedidorQuery(codigoConsulta);
   const medidor = query.data ?? null;

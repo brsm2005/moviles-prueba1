@@ -9,11 +9,20 @@ export interface Session {
 
 export const EMPLOYEE_CODE_REGEX = /^[A-Za-z0-9-]{3,20}$/;
 
+// RF1: técnicos autorizados (usuarios fijos, sin servidor de autenticación).
+const USUARIOS: Record<string, string> = {
+  bryan: 'Bryan123',
+  salvador: 'Salvador123',
+  juan: 'Juan123',
+};
+const NOMBRES: Record<string, string> = { bryan: 'Bryan', salvador: 'Salvador', juan: 'Juan' };
+
 export async function login(codigoEmpleado: string, clave: string): Promise<Session> {
-  if (!EMPLOYEE_CODE_REGEX.test(codigoEmpleado) || clave.length < 4) {
+  const llave = codigoEmpleado.trim().toLowerCase();
+  if (!(llave in USUARIOS) || USUARIOS[llave] !== clave) {
     throw new Error('Credenciales inválidas');
   }
-  const session: Session = { codigoEmpleado, loggedAt: new Date().toISOString() };
+  const session: Session = { codigoEmpleado: NOMBRES[llave], loggedAt: new Date().toISOString() };
   await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(session));
   return session;
 }

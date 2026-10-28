@@ -27,6 +27,8 @@ La aplicación debe cumplir con dos condiciones críticas adicionales descritas 
 ## Decisión
 Se usa **`expo-camera`** para la vista previa de la cámara y la gestión de permisos en tiempo de ejecución, en combinación con **`expo-file-system`** para guardar la fotografía capturada de forma permanente en la carpeta de documentos locales del teléfono. En el registro SQLite de la lectura se almacena únicamente la ruta local (`file://...`) de la imagen.
 
+La ruta local de la foto viaja con la lectura al sincronizar (`fotoURL`), y las lecturas descargadas en la precarga de datos (ver ADR-002 y ADR-007) conservan la que traían del servidor. Subir el archivo a MockAPI queda como mejora pendiente. El botón "Cancelar registro" descarta la captura, incluido el borrador con la ruta de la foto, pero no borra el archivo de la carpeta de documentos.
+
 ## Consecuencias
 - Las fotografías de respaldo permanecen seguras e inalteradas en el teléfono sin depender de la memoria caché temporal ni de la señal celular (R7).
 - Si el permiso de cámara es denegado, la interfaz despliega una explicación Modal o Alerta explicativa y habilita el botón de omitir si la foto no es requerida por R6 o R7.

@@ -1,3 +1,5 @@
+import { AppState } from 'react-native';
+
 import { getDb } from '@/db/database';
 
 import { seleccionarDatos, useLecturaStore, type DatosLectura } from './useLecturaStore';
@@ -53,4 +55,24 @@ export function iniciarAutoguardado(): () => void {
     if (JSON.stringify(datos) === JSON.stringify(anterior)) return;
     guardarBorrador(datos).catch(() => undefined);
   });
+}
+
+// R8: autoguardado global y volcado final cuando la app pasa a segundo plano o se cierra.
+export function iniciarProteccionBorrador(): () => void {
+  const detener = iniciarAutoguardado();
+  const appState = AppState.addEventListener('change', (estado) => {
+    if (estado === 'active') return;
+    const datos = seleccionarDatos(useLecturaStore.getState());
+    if (datos.medidorCodigo) guardarBorrador(datos).catch(() => undefined);
+  });
+  return () => {
+    detener();
+    appState.remove();
+  };
+}
+
+// Descarta el registro en curso (botón Cancelar): primero el estado en memoria, luego el borrador.
+export async function cancelarRegistro(): Promise<void> {
+  useLecturaStore.getState().resetFormulario();
+  await limpiarBorrador();
 }
