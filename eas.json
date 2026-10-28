@@ -11,6 +11,9 @@
     },
     "preview": {
       "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
       "env": { "EXPO_PUBLIC_URL": "https://6ae13da7be3bc8fead9851ef.mockapi.io" }
     },
     "production": {

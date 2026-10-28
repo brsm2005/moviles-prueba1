@@ -2,7 +2,7 @@
   "expo": {
     "name": "EPMAPS",
     "slug": "prueba1-bs",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "prueba1bs",
