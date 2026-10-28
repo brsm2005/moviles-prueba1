@@ -1,8 +1,9 @@
 import { useForm } from '@tanstack/react-form';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -14,7 +15,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { NetworkStatusBar } from '@/components/network-status-bar';
+import { appAlert } from '@/components/app-alert';
+import { HeaderEpmaps } from '@/components/header-epmaps';
 import { logout } from '@/features/auth/auth.service';
 import { useLecturaStore } from '@/features/lecturas/useLecturaStore';
 import { validarCodigoMedidor } from '@/features/medidores/medidores.validator';
@@ -39,6 +41,18 @@ export default function BusquedaScreen() {
       : 'No se pudo consultar el medidor'
     : '';
 
+  useEffect(() => {
+    if (errorConsulta) {
+      const noRed = /conexi/i.test(errorConsulta);
+      const dup = /registrad|mes/i.test(errorConsulta);
+      appAlert(
+        noRed ? 'Sin conexión' : dup ? 'Medidor ya registrado' : 'Medidor no encontrado',
+        errorConsulta,
+        noRed || dup ? 'warning' : 'error',
+      );
+    }
+  }, [errorConsulta, query.errorUpdatedAt]);
+
   const form = useForm({
     defaultValues: { codigo: '' },
     onSubmit: ({ value }) => {
@@ -59,8 +73,8 @@ export default function BusquedaScreen() {
     : [];
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top']}>
-      <NetworkStatusBar />
+    <SafeAreaView style={styles.screen} edges={[]}>
+      <HeaderEpmaps />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -68,18 +82,27 @@ export default function BusquedaScreen() {
           <View style={{ alignItems: 'flex-end', marginBottom: 8 }}>
             <Pressable
               style={({ pressed }) => [styles.logout, pressed && { opacity: 0.85 }]}
-              onPress={async () => {
-                await logout();
-                router.replace('/' as never);
-              }}>
+              onPress={() =>
+                Alert.alert('Cerrar sesión', '¿Desea cerrar la sesión actual?', [
+                  { text: 'Cancelar', style: 'cancel' },
+                  {
+                    text: 'Cerrar sesión',
+                    style: 'destructive',
+                    onPress: async () => {
+                      await logout();
+                      router.replace('/' as never);
+                    },
+                  },
+                ])
+              }>
               <Text style={styles.logoutText}>Cerrar Sesión</Text>
             </Pressable>
           </View>
           <Text style={styles.title}>Consultar medidor</Text>
-          <Pressable onPress={() => router.push('/historial' as never)} style={{ marginBottom: 16 }}>
-            <Text style={{ fontFamily: 'Roboto_500Medium', color: C.accent, fontSize: 15 }}>
-              Ver historial de lecturas
-            </Text>
+          <Pressable
+            onPress={() => router.push('/historial' as never)}
+            style={({ pressed }) => [styles.btnHistorial, pressed && { opacity: 0.85 }]}>
+            <Text style={styles.btnHistorialText}>📋  Ver historial de lecturas</Text>
           </Pressable>
 
           <form.Field
@@ -137,8 +160,6 @@ export default function BusquedaScreen() {
             }}
           </form.Subscribe>
 
-          {!!errorConsulta && <Text style={[styles.error, styles.consultaError]}>{errorConsulta}</Text>}
-
           {medidor && (
             <View style={styles.card}>
               <Text style={styles.codigo}>{medidor.codigo}</Text>
@@ -175,8 +196,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: C.error,
+    backgroundColor: '#FEF2F2',
     justifyContent: 'center',
   },
+  btnHistorial: {
+    minHeight: 52,
+    borderRadius: 14,
+    backgroundColor: '#E0F2FE',
+    borderWidth: 1.5,
+    borderColor: C.accent,
+    borderBottomWidth: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  btnHistorialText: { fontFamily: 'Roboto_700Bold', color: C.primary, fontSize: 16 },
   logoutText: { fontFamily: 'Roboto_500Medium', color: C.error, fontSize: 14 },
   screen: { flex: 1, backgroundColor: C.bg },
   flex: { flex: 1 },
@@ -188,38 +222,47 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto_700Bold',
     minHeight: 56,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
-    borderRadius: 12,
-    paddingHorizontal: 14,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
+    paddingHorizontal: 16,
     fontSize: 22,
     letterSpacing: 1,
-    color: '#0F172A',
-    backgroundColor: C.card,
+    color: '#1E293B',
+    backgroundColor: '#F1F5F9',
   },
   inputError: { borderColor: C.error },
   error: { fontFamily: 'Roboto_400Regular', color: C.error, fontSize: 13, marginTop: 4 },
   consultaError: { marginTop: 12, fontSize: 15 },
   button: {
-    minHeight: 56,
-    borderRadius: 12,
+    minHeight: 58,
+    borderRadius: 14,
     backgroundColor: C.primary,
     alignItems: 'center',
     justifyContent: 'center',
+    borderBottomWidth: 4,
+    borderBottomColor: '#00325C',
+    elevation: 5,
+    shadowColor: C.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
   disabled: { opacity: 0.45 },
-  buttonText: { fontFamily: 'Roboto_500Medium', color: '#fff', fontSize: 18 },
-  cta: { marginTop: 16, backgroundColor: C.accent },
+  buttonText: { fontFamily: 'Roboto_700Bold', color: '#fff', fontSize: 18, letterSpacing: 0.5 },
+  cta: { marginTop: 16, backgroundColor: '#0076C6', borderBottomColor: '#005A99' },
   card: {
     marginTop: 20,
     backgroundColor: C.card,
-    borderRadius: 12,
-    padding: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    borderLeftWidth: 4,
+    borderRadius: 16,
+    padding: 18,
+    elevation: 3,
+    shadowColor: C.primary,
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderLeftWidth: 5,
     borderLeftColor: C.accent,
   },
   codigo: { fontFamily: 'Roboto_700Bold', fontSize: 22, color: C.primary, marginBottom: 8 },

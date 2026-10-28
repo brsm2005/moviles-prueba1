@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 import type { Medidor } from '@/features/medidores/medidores.types';
 
 import { apiClient } from './apiClient';
@@ -18,8 +20,14 @@ export interface Lectura {
 
 export const medidoresService = {
   async getByCodigo(codigo: string): Promise<Medidor | null> {
-    const { data } = await apiClient.get<Medidor[]>(`/medidores?codigo=${codigo}`);
-    return data.find((m) => m.codigo === codigo) ?? null;
+    try {
+      const { data } = await apiClient.get<Medidor[]>(`/medidores?codigo=${codigo}`);
+      return data.find((m) => m.codigo === codigo) ?? null;
+    } catch (e) {
+      // MockAPI responde 404 cuando el filtro no tiene coincidencias.
+      if (axios.isAxiosError(e) && e.response?.status === 404) return null;
+      throw e;
+    }
   },
 };
 
@@ -29,7 +37,13 @@ export const lecturasService = {
     return data;
   },
   async findByMedidor(medidorCodigo: string): Promise<Lectura[]> {
-    const { data } = await apiClient.get<Lectura[]>('/lecturas', { params: { medidorCodigo } });
-    return data;
+    try {
+      const { data } = await apiClient.get<Lectura[]>('/lecturas', { params: { medidorCodigo } });
+      return data;
+    } catch (e) {
+      // MockAPI responde 404 cuando el filtro no tiene coincidencias.
+      if (axios.isAxiosError(e) && e.response?.status === 404) return [];
+      throw e;
+    }
   },
 };

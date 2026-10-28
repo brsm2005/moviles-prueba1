@@ -102,6 +102,8 @@ Ejemplos:
 - Pantalla /historial (R10): chips PENDIENTE/ENVIADO, edición solo PENDIENTE, enlace desde /busqueda.
 - Fixes UI auditoría: dismissAll al guardar, logout en /busqueda, barra de red en login, reevaluación de anomalía (confirmación + foto) al editar en /historial, expo-image reemplazado por Image nativo.
 - Correcciones auditoría: .env + fallback URL, sync inmediato tras guardar, fallos 4xx/5xx no bloquean la cola, codigo_empleado por lectura (migración), duplicado mensual al buscar, caché con día de Quito (UTC-5).
+- Fix sync: findByMedidor trata el 404 de MockAPI (sin coincidencias) como lista vacía; antes dejaba lecturas en pendientes.
+- Alertas estilizadas: components/app-alert.tsx (appAlert + AppAlertHost en _layout) para login y consulta de medidor; 404 de medidores = "Medidor no encontrado".
 - _layout.tsx: fuentes Roboto, QueryClientProvider (staleTime 24h), init SQLite, Stack.
 - Medidores (R2, R3): medidores.types/validator/service.ts y hook useMedidorQuery.
 - Pantalla /busqueda (TanStack Form + useQuery, tarjeta con 7 datos).
@@ -110,6 +112,7 @@ Ejemplos:
 - Pantalla /registro/paso1-estado (R5, R8): estados, motivo/daño obligatorios, borrador Continuar/Descartar.
 - Utilidades: calculoConsumo.ts (R6), utils/fileSystemStorage.ts (R7), lecturas.service.ts (R4, guarda y limpia borrador).
 - Pantallas paso2-lectura (R5, R6) y confirmacion (R4, R7, R8: cámara, guardar, reset, alerta).
+- UI moderna (skill epmaps-uio-moderno): components/header-epmaps.tsx (banner azul con logo+EPMAPS+píldoras de red/pendientes) en todas las pantallas incl. login; botones con relieve; Alert de cierre de sesión y de login fallido.
 
 ---
 

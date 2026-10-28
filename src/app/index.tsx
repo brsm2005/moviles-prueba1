@@ -14,7 +14,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { NetworkStatusBar } from '@/components/network-status-bar';
+import { appAlert } from '@/components/app-alert';
+import { HeaderEpmaps } from '@/components/header-epmaps';
 import { EMPLOYEE_CODE_REGEX, getSession, login } from '@/features/auth/auth.service';
 
 const C = {
@@ -32,7 +33,6 @@ export default function LoginScreen() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [hasSession, setHasSession] = useState(false);
-  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     getSession()
@@ -43,12 +43,11 @@ export default function LoginScreen() {
   const form = useForm({
     defaultValues: { codigo: '', clave: '' },
     onSubmit: async ({ value }) => {
-      setSubmitError('');
       try {
         await login(value.codigo.trim(), value.clave);
         router.replace('/busqueda' as never);
       } catch {
-        setSubmitError('No se pudo iniciar sesión. Verifique sus datos.');
+        appAlert('Acceso denegado', 'No se pudo iniciar sesión. Verifique su código y clave.', 'error');
       }
     },
   });
@@ -63,19 +62,15 @@ export default function LoginScreen() {
   if (hasSession) return <Redirect href={'/busqueda' as never} />;
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top']}>
-      <NetworkStatusBar />
+    <SafeAreaView style={styles.screen} edges={[]}>
+      <HeaderEpmaps />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Text style={styles.brand}>EPMAPS</Text>
-          <Text style={styles.subtitle}>Lecturas de campo</Text>
-        </View>
-
         <View style={styles.card}>
           <Text style={styles.title}>Iniciar sesión</Text>
+          <Text style={styles.lead}>Ingrese con su código de empleado para comenzar la jornada.</Text>
 
           <form.Field
             name="codigo"
@@ -138,7 +133,6 @@ export default function LoginScreen() {
             )}
           </form.Field>
 
-          {!!submitError && <Text style={styles.error}>{submitError}</Text>}
 
           <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting] as const}>
             {([canSubmit, isSubmitting]) => (
@@ -153,7 +147,7 @@ export default function LoginScreen() {
                 {isSubmitting ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.buttonText}>Ingresar</Text>
+                  <Text style={styles.buttonText}>Ingresar  →</Text>
                 )}
               </Pressable>
             )}
@@ -169,45 +163,50 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
   center: { alignItems: 'center', justifyContent: 'center' },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: 20 },
-  header: { alignItems: 'center', marginBottom: 28 },
-  brand: { fontFamily: font('bold'), fontSize: 36, color: C.primary, letterSpacing: 2 },
-  subtitle: { fontFamily: font('regular'), fontSize: 16, color: C.accent, marginTop: 4 },
   card: {
     backgroundColor: C.card,
-    borderRadius: 12,
-    padding: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    borderTopWidth: 4,
-    borderTopColor: C.accent,
+    borderRadius: 20,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    elevation: 4,
+    shadowColor: C.primary,
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
   },
-  title: { fontFamily: font('bold'), fontSize: 22, color: C.primary, marginBottom: 16 },
+  title: { fontFamily: font('bold'), fontSize: 24, color: C.primary },
+  lead: { fontFamily: font('regular'), fontSize: 14, color: '#64748B', marginTop: 4, marginBottom: 20 },
   group: { marginBottom: 16 },
   label: { fontFamily: font('medium'), fontSize: 14, color: C.primary, marginBottom: 6 },
   input: {
     fontFamily: font('regular'),
     minHeight: 52,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
-    borderRadius: 12,
-    paddingHorizontal: 14,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
+    paddingHorizontal: 16,
     fontSize: 18,
-    color: '#0F172A',
-    backgroundColor: C.card,
+    color: '#1E293B',
+    backgroundColor: '#F1F5F9',
   },
   inputError: { borderColor: C.error },
   error: { fontFamily: font('regular'), color: C.error, fontSize: 13, marginTop: 4 },
   button: {
-    minHeight: 56,
-    borderRadius: 12,
+    minHeight: 58,
+    borderRadius: 14,
     backgroundColor: C.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
+    borderBottomWidth: 4,
+    borderBottomColor: '#00325C',
+    elevation: 5,
+    shadowColor: C.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
   buttonDisabled: { opacity: 0.5 },
-  buttonText: { fontFamily: font('medium'), color: '#fff', fontSize: 18 },
+  buttonText: { fontFamily: font('bold'), color: '#fff', fontSize: 18, letterSpacing: 0.5 },
 });

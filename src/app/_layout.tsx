@@ -10,6 +10,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 
 import { getDb } from '@/db/database';
+import { AppAlertHost } from '@/components/app-alert';
 import { useSyncListener } from '@/features/sync/useSyncListener';
 
 SplashScreen.preventAutoHideAsync();
@@ -43,6 +44,7 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <Stack screenOptions={{ headerShown: false }} />
+      <AppAlertHost />
     </QueryClientProvider>
   );
 }

@@ -38,9 +38,18 @@ export function NetworkStatusBar() {
   }, []);
 
   return (
-    <View style={[styles.bar, { backgroundColor: online ? '#10B981' : '#F59E0B' }]}>
-      <Text style={styles.text}>{online ? '● Con red' : '○ Sin red'}</Text>
-      <Text style={styles.text}>Pendientes: {pendientes}</Text>
+    <View style={styles.bar}>
+      <View style={[styles.pill, { backgroundColor: online ? '#DCFCE7' : '#FEF3C7' }]}>
+        <View style={[styles.dot, { backgroundColor: online ? '#10B981' : '#F59E0B' }]} />
+        <Text style={[styles.text, { color: online ? '#166534' : '#92400E' }]}>
+          {online ? 'Con red' : 'Sin red'}
+        </Text>
+      </View>
+      <View style={[styles.pill, { backgroundColor: pendientes > 0 ? '#FEF3C7' : 'rgba(255,255,255,0.18)' }]}>
+        <Text style={[styles.text, { color: pendientes > 0 ? '#92400E' : '#FFFFFF' }]}>
+          Pendientes: {pendientes}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -51,7 +60,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingTop: 8,
   },
-  text: { fontFamily: 'Roboto_500Medium', color: '#fff', fontSize: 14 },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 999,
+  },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  text: { fontFamily: 'Roboto_500Medium', fontSize: 13 },
 });

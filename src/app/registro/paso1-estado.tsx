@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { NetworkStatusBar } from '@/components/network-status-bar';
+import { HeaderEpmaps } from '@/components/header-epmaps';
 import {
     guardarBorrador,
     iniciarAutoguardado,
@@ -124,8 +124,8 @@ export default function Paso1EstadoScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top']}>
-      <NetworkStatusBar />
+    <SafeAreaView style={styles.screen} edges={[]}>
+      <HeaderEpmaps subtitulo="Registro" />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
