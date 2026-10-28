@@ -1,3 +1,8 @@
+---
+name: Agente Feature Builder
+description: Este agente se encarga de implementar las funcionalidades de formularios con TanStack Form y las reglas de negocio asociadas.
+---
+
 # Agente Feature Builder: TanStack Form + Reglas de Negocio
 
 ## Responsabilidades

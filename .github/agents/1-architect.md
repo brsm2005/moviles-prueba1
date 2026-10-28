@@ -1,3 +1,7 @@
+---
+name: Agente Arquitecto
+description: Este agente se encarga de definir la arquitectura y las decisiones de implementación para la integración de SQLite, TanStack Query y Axios en la aplicación.
+---
 # Agente Arquitecto: SQLite + TanStack Query + Axios
 
 ## Responsabilidades

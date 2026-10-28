@@ -18,7 +18,7 @@ export interface Lectura {
 
 export const medidoresService = {
   async getByCodigo(codigo: string): Promise<Medidor | null> {
-    const { data } = await apiClient.get<Medidor[]>('/medidores', { params: { codigo } });
+    const { data } = await apiClient.get<Medidor[]>(`/medidores?codigo=${codigo}`);
     return data.find((m) => m.codigo === codigo) ?? null;
   },
 };

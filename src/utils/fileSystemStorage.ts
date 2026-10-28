@@ -1,5 +1,4 @@
 import { Directory, File, Paths } from 'expo-file-system';
-
 const CARPETA_FOTOS = 'fotos_lecturas';
 
 // R7: copia la foto del caché temporal al directorio de documentos (permanente).
