@@ -193,7 +193,8 @@ export default function Paso2LecturaScreen() {
                 <form.Subscribe selector={(s) => s.values.lectura}>
                   {(lectura) => {
                     const hayLectura = NUMERO.test(lectura.trim());
-                    const resultado = hayLectura
+                    const validacion = validarLecturaParaAlerta(lectura);
+                    const resultado = hayLectura && validacion.esValido
                       ? calcularConsumo(Number(lectura), medidor.ultimaLectura, medidor.promedioMensual)
                       : null;
                     const anomalo = !!resultado?.esAnomalo;
@@ -239,9 +240,17 @@ export default function Paso2LecturaScreen() {
                           </View>
                         )}
 
+                        {lectura.trim() !== '' && !validacion.esValido && (
+                          <Text style={{ color: '#EF4444', marginTop: 8, fontFamily: 'Roboto_500Medium' }}>
+                            {validacion.motivo}
+                          </Text>
+                        )}
+
                         <Pressable
+                          disabled={!validacion.esValido}
                           style={({ pressed }) => [
                             styles.botonAvanzar,
+                            !validacion.esValido && { opacity: 0.4 },
                             pressed && { opacity: 0.9 },
                           ]}
                           onPress={() => handleSiguientePaso(lectura)}>

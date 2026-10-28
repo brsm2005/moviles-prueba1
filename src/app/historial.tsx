@@ -1,6 +1,7 @@
 import { useForm } from '@tanstack/react-form';
     import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
     import { CameraView, useCameraPermissions } from 'expo-camera';
+    import { appAlert } from '@/components/app-alert';
     import { useRouter } from 'expo-router';
     import { useRef, useState } from 'react';
     import {
@@ -221,19 +222,33 @@ import { useForm } from '@tanstack/react-form';
       const camaraRef = useRef<CameraView>(null);
       const [permiso, pedirPermiso] = useCameraPermissions();
     
-      const abrirCamara = async () => {
-        if (!permiso?.granted) {
-          const res = await pedirPermiso();
-          if (!res.granted) {
-            Alert.alert(
-              'Permiso Denegado',
-              'Se requiere acceso a la cámara para capturar la fotografía de respaldo.',
-              [{ text: 'Aceptar' }],
-            );
-            return;
-          }
+      const solicitarPermiso = async () => {
+        const res = await pedirPermiso();
+        if (res.granted) {
+          setCamaraAbierta(true);
+          return;
         }
-        setCamaraAbierta(true);
+        appAlert(
+          'Permiso de cámara denegado',
+          'Se requiere acceso a la cámara para capturar la fotografía de respaldo. Actívelo en los ajustes del dispositivo.',
+          'warning',
+        );
+      };
+
+      const abrirCamara = () => {
+        if (permiso?.granted) {
+          setCamaraAbierta(true);
+          return;
+        }
+        appAlert(
+          'Acceso a la cámara',
+          'EPMAPS Campo necesita la cámara para tomar la foto de respaldo del medidor.',
+          'info',
+          [
+            { texto: 'Permitir cámara', onPress: solicitarPermiso },
+            { texto: 'Ahora no', secundario: true },
+          ],
+        );
       };
     
       const tomarFoto = async () => {

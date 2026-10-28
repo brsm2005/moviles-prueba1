@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -55,10 +56,22 @@ export default function BusquedaScreen() {
     }
   }, [errorConsulta, query.errorUpdatedAt]);
 
+  useEffect(() => {
+    if (medidor && query.dataUpdatedAt) {
+      Keyboard.dismiss();
+      appAlert('Medidor encontrado', `${medidor.codigo} — ${medidor.direccion}`, 'success');
+    }
+  }, [medidor?.codigo, query.dataUpdatedAt]);
+
   const form = useForm({
     defaultValues: { codigo: '' },
     onSubmit: ({ value }) => {
-      setCodigoConsulta(value.codigo);
+      Keyboard.dismiss();
+      if (value.codigo === codigoConsulta) {
+        query.refetch();
+      } else {
+        setCodigoConsulta(value.codigo);
+      }
     },
   });
 

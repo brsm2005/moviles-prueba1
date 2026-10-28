@@ -120,6 +120,14 @@ Ejemplos:
 
 ---
 
+- Fix APK: EXPO_PUBLIC_URL definida en eas.json (.env está ignorado por git); botón Buscar refetch si el código no cambia.
+
+- Paso 2: lectura inválida (< última lectura, no numérica o vacía en normal) oculta el consumo y deshabilita "Siguiente Paso".
+
+- Permiso de cámara: modal previo en español (appAlert con acciones) antes del diálogo del sistema.
+
+- Búsqueda: alerta de éxito (✓ verde) al encontrar medidor y se oculta el teclado.
+
 ## Falta por hacer
 
 - Probar flujo completo en dispositivo (cámara, permisos, modo avión, sync al reconectar).

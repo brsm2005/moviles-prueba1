@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
     import { CameraView, useCameraPermissions } from 'expo-camera';
+    import { appAlert } from '@/components/app-alert';
     import { useRouter } from 'expo-router';
     import { useRef, useState } from 'react';
     import {
@@ -82,24 +83,39 @@ import { useQueryClient } from '@tanstack/react-query';
       const fotoObligatoria = datos.esAnomalo || datos.estadoMedidor === 'danado';
       const puedeGuardar = !guardando && (!fotoObligatoria || !!datos.fotoUri);
     
-      const abrirCamara = async () => {
-        if (!permiso?.granted) {
-          const res = await pedirPermiso();
-          if (!res.granted) {
-            Alert.alert(
-              'Permiso Denegado',
-              fotoObligatoria
-                ? 'Se requiere acceso a la cámara para la fotografía de respaldo obligatoria. Por favor actívelo en los ajustes del dispositivo.'
-                : 'No se concedió acceso a la cámara. Puede conceder el permiso en ajustes o continuar sin fotografía.',
-              [
-                { text: 'Continuar', style: 'cancel' },
-                { text: 'Reintentar', onPress: () => abrirCamara() },
-              ],
-            );
-            return;
-          }
+      const solicitarPermiso = async () => {
+        const res = await pedirPermiso();
+        if (res.granted) {
+          setCamaraAbierta(true);
+          return;
         }
-        setCamaraAbierta(true);
+        appAlert(
+          'Permiso de cámara denegado',
+          fotoObligatoria
+            ? 'La fotografía de respaldo es obligatoria en este registro. Active el permiso de cámara en los ajustes del dispositivo.'
+            : 'Puede activar el permiso en los ajustes del dispositivo o continuar sin fotografía.',
+          'warning',
+          [
+            { texto: 'Reintentar', onPress: solicitarPermiso },
+            { texto: 'Continuar', secundario: true },
+          ],
+        );
+      };
+
+      const abrirCamara = () => {
+        if (permiso?.granted) {
+          setCamaraAbierta(true);
+          return;
+        }
+        appAlert(
+          'Acceso a la cámara',
+          'EPMAPS Campo necesita la cámara para tomar la foto de respaldo del medidor.',
+          'info',
+          [
+            { texto: 'Permitir cámara', onPress: solicitarPermiso },
+            { texto: 'Ahora no', secundario: true },
+          ],
+        );
       };
     
       const tomarFoto = async () => {

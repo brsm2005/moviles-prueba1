@@ -1,15 +1,12 @@
 {
   "expo": {
-    "name": "prueba1-BS",
-    "slug": "prueba1-BS",
-    "version": "1.0.1",
+    "name": "EPMAPS",
+    "slug": "prueba1-bs",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "prueba1bs",
     "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -21,7 +18,8 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "package": "com.brsm2005.pruebaonebs"
     },
     "web": {
       "output": "static",
@@ -53,7 +51,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "39051c48-7a30-49b8-b5fd-6ce47cb0de75"
+        "projectId": "fd8eb848-b67b-40b5-83a3-50a547d5612b"
       }
     }
   }
